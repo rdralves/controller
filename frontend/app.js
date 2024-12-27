@@ -1,18 +1,36 @@
-const API_URL = "http://127.0.0.1:5000/api/hello";
+// Função para lidar com a submissão do formulário de criação de usuário
+document.getElementById('createUserForm').addEventListener('submit', async (event) => {
+    event.preventDefault(); // Previne o comportamento padrão do formulário
+    const name = document.getElementById('name').value; // Obtém o valor do campo "name"
+    const email = document.getElementById('email').value; // Obtém o valor do campo "email"
 
-// Função para buscar a mensagem do backend
-async function fetchMessage() {
-    try {
-        const response = await fetch(API_URL, { method: "GET" });
-        const data = await response.json();
+    // Faz uma requisição POST para criar um novo usuário
+    const response = await fetch('http://localhost:5000/api/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email }) // Envia os dados do usuário no corpo da requisição
+    });
 
-        // Atualiza o conteúdo do h1 com a mensagem recebida
-        document.getElementById("message").innerText = data.message;
-    } catch (error) {
-        console.error("Erro ao buscar a mensagem:", error);
-        document.getElementById("message").innerText = "Erro ao carregar mensagem.";
+    const result = await response.json(); // Converte a resposta para JSON
+    if (response.ok) {
+        alert('User created successfully!'); // Exibe uma mensagem de sucesso
+    } else {
+        alert('Error: ' + result.error); // Exibe uma mensagem de erro
     }
-}
+});
 
-// Chama a função quando a página é carregada
-document.addEventListener("DOMContentLoaded", fetchMessage);
+// Função para buscar e exibir a lista de usuários
+document.getElementById('fetchUsers').addEventListener('click', async () => {
+    const response = await fetch('http://localhost:5000/api/users'); // Faz uma requisição GET para obter os usuários
+    const users = await response.json(); // Converte a resposta para JSON
+
+    const usersList = document.getElementById('usersList'); // Obtém o elemento da lista de usuários
+    usersList.innerHTML = ''; // Limpa a lista de usuários
+    users.forEach(user => {
+        const li = document.createElement('li'); // Cria um novo elemento de lista
+        li.textContent = `${user.name} (${user.email})`; // Define o texto do elemento de lista
+        usersList.appendChild(li); // Adiciona o elemento de lista à lista de usuários
+    });
+});
